@@ -17,44 +17,45 @@ import { AchievementCard } from "@/components/gamification/achievement-card"
 export default function DashboardPage() {
   const { points, level, achievements, addPoints } = useGamification()
   const [showWelcome, setShowWelcome] = useState(true)
-
-  // Mock data for dashboard
+  
+  // Mock data for active contests
   const activeContests = [
     {
       id: "1",
-      title: "Modern Logo Design for Tech Startup",
-      submissions: 12,
-      deadline: "2 days left",
-      budget: "$500",
+      title: "Logo Design for Tech Startup",
+      submissions: 24,
+      deadline: "3 days left",
+      budget: "$500"
     },
     {
       id: "2",
-      title: "E-commerce Website Redesign",
-      submissions: 8,
+      title: "Website Redesign Project",
+      submissions: 18,
       deadline: "5 days left",
-      budget: "$1,500",
-    },
+      budget: "$1,200"
+    }
   ]
-
+  
+  // Mock data for recent submissions
   const recentSubmissions = [
     {
       id: "1",
-      contestTitle: "Mobile App UI/UX Design",
-      date: "Apr 10, 2023",
-      status: "Under Review",
+      contestTitle: "Mobile App UI Design",
+      date: "Yesterday",
+      status: "Under Review"
     },
     {
       id: "2",
-      contestTitle: "Product Packaging Design",
-      date: "Apr 8, 2023",
-      status: "Winner Selected",
+      contestTitle: "Brand Identity Package",
+      date: "3 days ago",
+      status: "Winner Selected"
     },
     {
       id: "3",
-      contestTitle: "Content Writing for Blog Series",
-      date: "Apr 5, 2023",
-      status: "Feedback Received",
-    },
+      contestTitle: "Marketing Materials Design",
+      date: "1 week ago",
+      status: "Completed"
+    }
   ]
 
   // Hide welcome message after 5 seconds

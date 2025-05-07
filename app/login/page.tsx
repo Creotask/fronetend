@@ -20,7 +20,7 @@ import { loginSchema, type LoginFormData } from "@/lib/validations/auth"
 export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
+  const callbackUrl = searchParams.get("callbackUrl") || "/"  // Changed from "/dashboard" to "/" (home page)
   const { toast } = useToast()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -39,35 +39,28 @@ export default function LoginPage() {
   }
 
   const onSubmit = async (data: LoginFormData) => {
+    console.log("Login submission started", data);
     setIsLoading(true)
     
     try {
-      const result = await signIn("credentials", {
+      console.log("Calling signIn with redirect=true to enable NextAuth's built-in cookie handling");
+      // Use redirect: true to let NextAuth handle cookie setting
+      await signIn("credentials", {
         email: data.email,
         password: data.password,
-        redirect: false,
-      })
-
-      if (!result?.ok) {
-        throw new Error(result?.error || 'Authentication failed')
-      }
-
-      toast({
-        title: "Login successful!",
-        description: "Welcome back to CreoTask",
+        redirect: true,
+        callbackUrl: "/dashboard"
       })
       
-      // Redirect to dashboard or callback URL
-      router.push(callbackUrl)
-      router.refresh()
+      // Code below won't execute due to redirect
       
     } catch (error) {
+      console.error("Login error:", error);
       toast({
         variant: "destructive",
         title: "Login failed",
         description: error instanceof Error ? error.message : "Invalid email or password",
       })
-    } finally {
       setIsLoading(false)
     }
   }
