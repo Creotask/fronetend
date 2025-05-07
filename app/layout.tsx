@@ -1,6 +1,7 @@
 import type React from "react"
 import { Montserrat, Poppins } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
+import { AuthProvider } from "@/components/auth-provider"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { GamificationProvider } from "@/components/gamification/gamification-provider"
@@ -37,19 +38,18 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={`${montserrat.variable} ${poppins.variable}`}>
       <body className={montserrat.className}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <GamificationProvider>
-            <div className="flex min-h-screen flex-col bg-gradient-to-b from-background to-background/80">
-              <Header />
-              <main className="flex-1">{children}</main>
-              <Footer />
-              <Toaster />
-            </div>
-          </GamificationProvider>
+          <AuthProvider>
+            <GamificationProvider>
+              <div className="flex min-h-screen flex-col bg-gradient-to-b from-background to-background/80">
+                <Header />
+                <main className="flex-1">{children}</main>
+                <Footer />
+                <Toaster />
+              </div>
+            </GamificationProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
   )
 }
-
-
-import './globals.css'

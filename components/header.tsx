@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Bell, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useGamification } from "@/components/gamification/gamification-provider"
 import { PointsDisplay } from "@/components/gamification/points-display"
@@ -21,17 +21,32 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion"
 import { LogoText } from "@/components/animated-text"
+import { useSession, signOut } from "next-auth/react"
+import { useToast } from "@/components/ui/use-toast"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(true) // For demo purposes
   const [isScrolled, setIsScrolled] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+  const { data: session, status } = useSession()
+  const isLoggedIn = status === "authenticated"
   const { showLevelUpAnimation, setShowLevelUpAnimation } = useGamification()
+  const { toast } = useToast()
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
   }
+
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
+    toast({
+      title: "Logged out successfully",
+      description: "You have been logged out of your account",
+    });
+    router.push("/");
+    router.refresh();
+  };
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -166,13 +181,13 @@ export default function Header() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src="/placeholder.svg" alt="@user" />
-                        <AvatarFallback>U</AvatarFallback>
+                        <AvatarImage src="/placeholder.svg" alt={session?.user?.name || "@user"} />
+                        <AvatarFallback>{session?.user?.name?.[0] || "U"}</AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuLabel>{session?.user?.name || "My Account"}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link href="/dashboard">Dashboard</Link>
@@ -184,7 +199,7 @@ export default function Header() {
                       <Link href="/achievements">Achievements</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>Log out</DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </motion.div>
@@ -309,7 +324,10 @@ export default function Header() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.8 }}
                     >
-                      <Button variant="outline" size="sm" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="outline" size="sm" onClick={() => {
+                        handleLogout();
+                        setIsMenuOpen(false);
+                      }}>
                         Log Out
                       </Button>
                     </motion.div>

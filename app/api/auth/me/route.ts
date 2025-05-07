@@ -1,31 +1,24 @@
 import { PrismaClient } from '@/lib/generated/prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { auth } from '../[...nextauth]/auth';
 
 const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
-    // Get the auth token from cookies
-    const authToken = request.cookies.get('auth_token')?.value;
+    // Get the auth session
+    const session = await auth();
     
-    if (!authToken) {
+    if (!session || !session.user) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       );
     }
     
-    // Verify the token
-    const decodedToken = jwt.verify(
-      authToken, 
-      process.env.JWT_SECRET || 'fallback_secret'
-    ) as { id: string };
-    
     // Find user by ID
     const user = await prisma.user.findUnique({
-      where: { id: decodedToken.id },
-      // Only include fields that exist in your Prisma schema
+      where: { id: session.user.id },
       select: {
         id: true,
         name: true,
@@ -54,21 +47,15 @@ export async function GET(request: NextRequest) {
 // Update profile
 export async function PUT(request: NextRequest) {
   try {
-    // Get the auth token from cookies
-    const authToken = request.cookies.get('auth_token')?.value;
+    // Get the auth session
+    const session = await auth();
     
-    if (!authToken) {
+    if (!session || !session.user) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       );
     }
-    
-    // Verify the token
-    const decodedToken = jwt.verify(
-      authToken, 
-      process.env.JWT_SECRET || 'fallback_secret'
-    ) as { id: string };
     
     // Get the updated profile data
     const updatedData = await request.json();
@@ -78,9 +65,8 @@ export async function PUT(request: NextRequest) {
     
     // Update user profile
     const updatedUser = await prisma.user.update({
-      where: { id: decodedToken.id },
+      where: { id: session.user.id },
       data: allowedUpdates,
-      // Only include fields that exist in your Prisma schema
       select: {
         id: true,
         name: true,
