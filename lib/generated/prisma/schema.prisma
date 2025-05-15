@@ -33,12 +33,17 @@ model User {
 }
 
 model Profile {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @unique @db.ObjectId
-  bio       String?
-  skills    String[]
-  portfolio String[]
-  user      User     @relation(fields: [userId], references: [id])
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String        @unique @db.ObjectId
+  bio          String?
+  skills       String[]
+  portfolio    String[]
+  xp           Int           @default(0)
+  level        Int           @default(1)
+  streak       Int           @default(0)
+  endorsements String[]      @default([])
+  user         User          @relation(fields: [userId], references: [id])
+  achievements Achievement[]
 
   @@map("profiles")
 }
@@ -106,6 +111,18 @@ model UserCourse {
   @@map("user_courses")
 }
 
+model Achievement {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  profileId   String   @db.ObjectId
+  title       String
+  description String?
+  iconUrl     String?
+  achievedAt  DateTime @default(now())
+  profile     Profile  @relation(fields: [profileId], references: [id])
+
+  @@map("achievements")
+}
+
 enum Role {
   FREELANCER
   CLIENT
@@ -114,6 +131,7 @@ enum Role {
 
 enum MembershipType {
   FREE
+  SILVER
   GOLD
   PLATINUM
 }
